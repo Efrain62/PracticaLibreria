@@ -1,131 +1,124 @@
-// Elementos input con información de libro Nuevo
-const autor = document.getElementById('inputAutor')
-const titulo = document.getElementById('inputTitulo')
-const tabla = document.getElementById('tbody')
-const inputBuscar = document
-
-const patern = /^[a-zA-Z0-9]{3,20}$/;
-/^[a-zA-ZÁ-ÿ0-9\s]{3,20}$/;
-
-const libro = new Libro()
-
-EventListener()
-PrepararDom()
-
-
-function EventListener(){
-    document.getElementById('btnAdd').addEventListener('click', PrepararLibro)
-    tabla.addEventListener('click', Acciones)
-    document.getElementById('btnVaciar').addEventListener('click', vaciarLibreria)
-    document.getElementById('btnBuscar').addEventListener('click', BuscarLibro)
+const autor = document.getElementById("inputAutor");
+const titulo = document.getElementById("inputTitulo");
+const tabla = document.getElementById("tbody");
+const inputBuscar= document.getElementById("inputBuscar");
+const libro = new Libro();
+const patern = /^[a-zA-ZÁ-ÿ0-9\s]{3,100}$/;
+function eventListener(){
+ document.getElementById("btnAdd").addEventListener("click",prepararLibro);
+tabla.addEventListener("click",acciones);
+document.getElementById('btn-vaciar').addEventListener('click', vaciarLibreria);
+document.getElementById('btnBuscar').addEventListener('click', buscarLibro);
 }
+eventListener();
+prepararDOM();
+function prepararLibro(){
+let id= Number(LocalStorageOperation.ultimoID());id++;
 
-let ultimoId = Number(LocalStorangeOperation.ultimoId)()
-ultimoId++
+if((autor.value != "" && titulo.value != "") && (patern.test(autor.value) && patern.test(titulo.value))){
 
-function PrepararLibro(){
+ //Arreglo tipo objeto
+const tipoLibro= {
+      id: id,
+    titulo: titulo.value.trim(),
+autor: autor.value.trim()
+}
+let noRepetir= LocalStorageOperation.validarTitulo(tipoLibro.titulo.trim().toLowerCase(), tipoLibro.autor.trim().toLowerCase());
+    if(noRepetir == 0) {
+            let tr = libro.agregar(tipoLibro);
+    tabla.appendChild(tr);
+LocalStorageOperation.almacenarLibro(tipoLibro);
     
-    console.log(ultimoId)
-
-   
-    if((autor.value != '' || titulo.value != '') && (patern.test(autor.value) || patern.test(titulo.value))){
-        //libro.agregar([autor.value,titulo.value])
-
-        const infoLibro = {
-            id: ultimoId,
-            titulo: titulo.value.trim(),
-            autor: autor.value.trim()
+     Swal.fire({
+     position: 'center',
+     icon: 'success',
+     title: 'Se ha agregado el libro',
+     showConfirmButton: false,
+    timer: 1000})
+     autor.value = "";
+     titulo.value = "";
+}else {
+     Swal.fire({
+     position: 'center',
+         icon: 'Error',
+        title: 'Ya existente',
+     showConfirmButton: false,
+    timer: 1500
+})
         }
-
-        let tr = libro.agregar([infoLibro])
-        console.log(tr);
-        tabla.appendChild(tr)
-        LocalStorangeOperation.almacenarLibro(infoLibro)
-
-        Swal.fire({
-            position: 'center',
-            icon: 'success',
-            title: 'Se agregó libro',
-            showConfirmButton: false,
-            timer: 1000
-          })
-          autor.value = ''
-          titulo.value = ''
-      
-    }else{
-        Swal.fire({
-            position: 'center',
-            icon: 'error',
-            title: 'Error',
-            showConfirmButton: false,
-            timer: 1000
-          })
+}else{
+Swal.fire({
+position: 'center',
+icon: 'Error',
+title: 'Datos no válidos',
+showConfirmButton: false,
+ timer: 1000
+        })
     }
     
+    
 }
 
-function Acciones(){
-    //console.log(event.target.tagName);
+function acciones(event){
     if(event.target.tagName === 'I' || event.target.tagName === 'BUTTON'){
-        
-        // libro.eliminar(event.target.tagName)
-       
-        // Filtrar botones editar y eliminar
-        if(event.target.className.includes('btn-outline-danger') || event.target.className.includes('fa-trash')){
-            console.log('eliminado')
-            libro.eliminar(event.target)
+        if(event.target.className.includes("btn-warning") || event.target.className.includes("fa-trash")){
+            libro.eliminar(event.target);
             Swal.fire({
                 position: 'center',
                 icon: 'success',
-                title: 'Se eliminó el libro',
+                title: 'Libro eliminado',
                 showConfirmButton: false,
                 timer: 1000
-              })
+            })
         }
     }
 }
 
-function PrepararDom(){
-    const librosLS = LocalStorangeOperation.ObtenerLS()
-    console.log(librosLS.length);
+function prepararDOM() {
+    const librosLS= LocalStorageOperation.obtenerLS();
 
-    for(let i = 0; i<librosLS.length; i++){
-        console.log(librosLS[i]);
-        // const instanciaLibro = new Libro()
-        const tr = libro.agregar(librosLS[i])
-        tabla.appendChild(tr)
+    for(let i= 0; i< librosLS.length; i++) {
+        let tr= libro.agregar(librosLS[i]);
+        tabla.appendChild(tr);
     }
 }
 
-function vaciarLibreria(){
-    console.log(tabla.firstChild)
-    while(tabla.firstChild){
-        tabla.firstChild.remove()
+function vaciarLibreria() {
+    console.log(tabla.firstChild);
+
+    while(tabla.firstChild) {
+        tabla.firstChild.remove();
     }
-    LocalStorangeOperation.BorrarStorage()
+
+    LocalStorageOperation.limpiarStorage();
 }
 
-function BuscarLibro(){
-    event.preventDefault()
-    // Validar que el input tenga texto:
-    if(inputBuscar.value != ''){
+function buscarLibro(event) {
+    event.preventDefault();
 
-        // Resultado es la salida del método BuscarTitulo que se encuentra en la clase LocasStorageOperation
-    let resultado = LocalStorangeOperation.BuscarTitulo(inputBuscar.value.trim().toLowerCase())
-    console.log('resultado');
-    if(resultado != ''){
-        // Cuando una búsqueda genera resultados se imprime una alerta con dichos resultados:
-        Swal.fire(
-            'Sin resultados',
-            `No existe un libro con título ${inputBuscar.value}`, 
-            'error'
-        )
-        // Cuando la búsqueda no genera resultados regresa un '' y se imprime una alerta de error.
-
-    }
-
-    inputBuscar.value = ''
-    }
-
+    //Validar que el input tenga texto
+    if(inputBuscar.value != '') {
+        let resultadoBusqueda= LocalStorageOperation.buscarTitulo(inputBuscar.value.trim().toLowerCase());
     
+        if(resultadoBusqueda != '') {
+            Swal.fire({
+                position: 'top-end',
+                icon: 'success',
+                title: 'Busqueda exitosa',
+                text: `El libro ${resultadoBusqueda.autor} tiene el id ${resultadoBusqueda.id} y fue escrito por ${resultadoBusqueda.autor}`,
+                showConfirmButton: false,
+                timer: 1500
+            })
+        }else {
+            console.log("Naur");
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: `No esta registrado el libro ${inputBuscar.value}`,
+                footer: '<a href>Why do I have this issue?</a>'
+            })
+        }
+    }
+
+    inputBuscar.value= '';
 }
