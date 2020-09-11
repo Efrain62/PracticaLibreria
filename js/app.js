@@ -2,6 +2,7 @@
 const autor = document.getElementById('inputAutor')
 const titulo = document.getElementById('inputTitulo')
 const tabla = document.getElementById('tbody')
+const inputBuscar = document
 
 const patern = /^[a-zA-Z0-9]{3,20}$/;
 /^[a-zA-ZÁ-ÿ0-9\s]{3,20}$/;
@@ -16,18 +17,22 @@ function EventListener(){
     document.getElementById('btnAdd').addEventListener('click', PrepararLibro)
     tabla.addEventListener('click', Acciones)
     document.getElementById('btnVaciar').addEventListener('click', vaciarLibreria)
+    document.getElementById('btnBuscar').addEventListener('click', BuscarLibro)
 }
 
-let id = 0
+let ultimoId = Number(LocalStorangeOperation.ultimoId)()
+ultimoId++
 
 function PrepararLibro(){
+    
+    console.log(ultimoId)
 
    
     if((autor.value != '' || titulo.value != '') && (patern.test(autor.value) || patern.test(titulo.value))){
-        //libro.agregar()
+        //libro.agregar([autor.value,titulo.value])
 
         const infoLibro = {
-            id: id ++,
+            id: ultimoId,
             titulo: titulo.value.trim(),
             autor: autor.value.trim()
         }
@@ -100,3 +105,27 @@ function vaciarLibreria(){
     LocalStorangeOperation.BorrarStorage()
 }
 
+function BuscarLibro(){
+    event.preventDefault()
+    // Validar que el input tenga texto:
+    if(inputBuscar.value != ''){
+
+        // Resultado es la salida del método BuscarTitulo que se encuentra en la clase LocasStorageOperation
+    let resultado = LocalStorangeOperation.BuscarTitulo(inputBuscar.value.trim().toLowerCase())
+    console.log('resultado');
+    if(resultado != ''){
+        // Cuando una búsqueda genera resultados se imprime una alerta con dichos resultados:
+        Swal.fire(
+            'Sin resultados',
+            `No existe un libro con título ${inputBuscar.value}`, 
+            'error'
+        )
+        // Cuando la búsqueda no genera resultados regresa un '' y se imprime una alerta de error.
+
+    }
+
+    inputBuscar.value = ''
+    }
+
+    
+}
