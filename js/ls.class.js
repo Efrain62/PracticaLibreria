@@ -44,17 +44,22 @@ class LocalStorangeOperation{
     static BuscarTitulo(titulo){
         // Título viene de app.js y es el valor de un input:
         // Para nuestro método, título será nuestro parámetro de búsqueda.
-        console.log(titulo);
-        let arrayLibros = this.ObtenerLS()
-
-        let resultado = ''
-        // Iteramos nuesro array de Libros mediante un ciclo:
-        // Ponemos i<arrayLibros.lenght para evitar una vuelta de más en el ciclo.
-        for(let i = 0; i < arrayLibros.length; i++){
-            if(arrayLibros[i].titulo == titulo){
-                 resultado = arrayLibros[i];
+        let arrayLibros= this.ObtenerLS();
+        let resultados= '';
+        for(let i=0; i<arrayLibros.length; i++){
+            if(arrayLibros[i].titulo.tolowerCase() == titulo){
+                resultados= arrayLibros[i];
             }
-        }return resultado
+        }
+        return resultados;
     }
-    
+    static validarTitulo(titulo, autor){
+        let arrayLibros= this.ObtenerLS();
+        let band=0;
+        for(let i=0; i<arrayLibros.length; i++){
+            if{(titulo == arrayLibros[i].titulo.trin().tolowerCase()) && (autor == arrayLibros[i].autor.trin().tolowerCase)}
+       band= i;
+        }
+    }
+return band;
 }
